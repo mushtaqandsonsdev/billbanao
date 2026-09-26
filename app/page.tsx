@@ -66,6 +66,7 @@ export default function BillBanaoFinal() {
 
   return (
     <div className="min-h-screen bg-white text-black selection:bg-[#6C5CE7]/20">
+      <style>{`@media print { body * { visibility: hidden !important; } #invoice-preview, #invoice-preview * { visibility: visible !important; } #invoice-preview { position: absolute !important; left:0 !important; top:0 !important; width:100% !important; box-shadow:none !important; border:none !important; } }`}</style>
       <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-zinc-100">
         <div className="max-w-[1280px] mx-auto px-6 h-[72px] flex justify-between items-center">
           <div className="flex items-center gap-3">
@@ -122,7 +123,46 @@ export default function BillBanaoFinal() {
                 <div className="mt-6 flex justify-end"><div className="w-[320px] rounded-[12px] border p-4 space-y-2" style={{ borderColor: T.border, background: T.headerBg }}><div className="flex justify-between text-[13px]"><span>Subtotal</span><span className="font-mono">Rs {subtotal.toLocaleString()}</span></div><div className="flex justify-between text-[13px]"><span>Tax ({tax}%)</span><span className="font-mono">Rs {taxAmt.toLocaleString()}</span></div><div className="flex justify-between font-bold"><span>Total</span><span className="font-mono" style={{ color: T.accent }}>Rs {total.toLocaleString()}</span></div></div></div>
                 <div className="mt-6 text-[12px]"><b>TERMS:</b> {meta.terms}</div>
               </div>
-              <div className="mt-6 space-y-3"><button onClick={() => window.print()} className="w-full h-12 rounded-full bg-[#6C5CE7] text-white font-bold text-[14px] shadow-lg hover:bg-[#5a4bd1] flex items-center justify-center gap-2">⬇ Download / Print Invoice</button><div className="grid grid-cols-2 gap-3"><button onClick={() => window.print()} className="h-10 rounded-full border bg-white text-[13px] font-medium">📄 Save as PDF</button><button onClick={() => { navigator.clipboard.writeText(window.location.href); alert("Link copied!"); }} className="h-10 rounded-full border bg-white text-[13px] font-medium">🔗 Copy Link</button></div></div>
+              <div className="mt-6 space-y-3">
+                <button onClick={() => {
+                  const el = document.getElementById('invoice-preview');
+                  if (!el) return;
+                  const win = window.open('', '_blank');
+                  if (!win) return;
+                  win.document.write(`
+                    <html>
+                      <head>
+                        <title>Invoice-${meta.number}</title>
+                        <script src="https://cdn.tailwindcss.com"></script>
+                        <style>
+                          body { background: white; padding: 24px; font-family: sans-serif; }
+                          @media print { body { padding: 0; } }
+                        </style>
+                      </head>
+                      <body>
+                        ${el.outerHTML}
+                        <script>window.onload = () => { setTimeout(() => { window.print(); window.close(); }, 300); }<\/script>
+                      </body>
+                    </html>
+                  `);
+                  win.document.close();
+                }} className="w-full h-12 rounded-full bg-[#6C5CE7] text-white font-bold text-[14px] shadow-lg hover:bg-[#5a4bd1] flex items-center justify-center gap-2">
+                  ⬇ Download / Print Invoice (1 Page Only)
+                </button>
+                <div className="grid grid-cols-2 gap-3">
+                  <button onClick={() => {
+                    const el = document.getElementById('invoice-preview');
+                    if (!el) return;
+                    const win = window.open('', '_blank');
+                    if (!win) return;
+                    win.document.write(`
+                      <html><head><title>Invoice-${meta.number}</title><script src="https://cdn.tailwindcss.com"><\/script><style>body{background:white;padding:24px;}</style></head><body>${el.outerHTML}<script>window.onload=()=>{setTimeout(()=>{window.print();},300);}<\/script></body></html>
+                    `);
+                    win.document.close();
+                  }} className="h-10 rounded-full border bg-white text-[13px] font-medium">📄 Save as PDF</button>
+                  <button onClick={() => { navigator.clipboard.writeText(window.location.href); alert("Link copied!"); }} className="h-10 rounded-full border bg-white text-[13px] font-medium">🔗 Copy Link</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
