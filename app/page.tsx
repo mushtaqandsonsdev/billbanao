@@ -127,38 +127,54 @@ export default function BillBanaoFinal() {
                 <button onClick={() => {
                   const el = document.getElementById('invoice-preview');
                   if (!el) return;
-                  const win = window.open('', '_blank');
-                  if (!win) return;
-                  win.document.write(`
+                  const iframe = document.createElement('iframe');
+                  iframe.style.position = 'fixed';
+                  iframe.style.right = '0';
+                  iframe.style.bottom = '0';
+                  iframe.style.width = '0';
+                  iframe.style.height = '0';
+                  iframe.style.border = '0';
+                  document.body.appendChild(iframe);
+                  const doc = iframe.contentWindow?.document;
+                  if (!doc) return;
+                  doc.open();
+                  doc.write(`
                     <html>
                       <head>
                         <title>Invoice-${meta.number}</title>
-                        <script src="https://cdn.tailwindcss.com"></script>
+                        <script src="https://cdn.tailwindcss.com"><\/script>
                         <style>
-                          body { background: white; padding: 24px; font-family: sans-serif; }
-                          @media print { body { padding: 0; } }
+                          body { background: white; padding: 20px; font-family: sans-serif; }
+                          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
                         </style>
                       </head>
                       <body>
                         ${el.outerHTML}
-                        <script>window.onload = () => { setTimeout(() => { window.print(); window.close(); }, 300); }<\/script>
                       </body>
                     </html>
                   `);
-                  win.document.close();
+                  doc.close();
+                  setTimeout(() => {
+                    iframe.contentWindow?.focus();
+                    iframe.contentWindow?.print();
+                    setTimeout(() => document.body.removeChild(iframe), 1000);
+                  }, 500);
                 }} className="w-full h-12 rounded-full bg-[#6C5CE7] text-white font-bold text-[14px] shadow-lg hover:bg-[#5a4bd1] flex items-center justify-center gap-2">
-                  ⬇ Download / Print Invoice (1 Page Only)
+                  ⬇ Download / Print Invoice
                 </button>
                 <div className="grid grid-cols-2 gap-3">
                   <button onClick={() => {
                     const el = document.getElementById('invoice-preview');
                     if (!el) return;
-                    const win = window.open('', '_blank');
-                    if (!win) return;
-                    win.document.write(`
-                      <html><head><title>Invoice-${meta.number}</title><script src="https://cdn.tailwindcss.com"><\/script><style>body{background:white;padding:24px;}</style></head><body>${el.outerHTML}<script>window.onload=()=>{setTimeout(()=>{window.print();},300);}<\/script></body></html>
-                    `);
-                    win.document.close();
+                    const iframe = document.createElement('iframe');
+                    iframe.style.position = 'fixed'; iframe.style.width = '0'; iframe.style.height = '0'; iframe.style.border = '0';
+                    document.body.appendChild(iframe);
+                    const doc = iframe.contentWindow?.document;
+                    if (!doc) return;
+                    doc.open();
+                    doc.write(`<html><head><title>Invoice-${meta.number}</title><script src="https://cdn.tailwindcss.com"><\/script><style>body{padding:20px;} *{-webkit-print-color-adjust:exact !important;}</style></head><body>${el.outerHTML}</body></html>`);
+                    doc.close();
+                    setTimeout(() => { iframe.contentWindow?.print(); setTimeout(()=>document.body.removeChild(iframe),1000); }, 500);
                   }} className="h-10 rounded-full border bg-white text-[13px] font-medium">📄 Save as PDF</button>
                   <button onClick={() => { navigator.clipboard.writeText(window.location.href); alert("Link copied!"); }} className="h-10 rounded-full border bg-white text-[13px] font-medium">🔗 Copy Link</button>
                 </div>
@@ -205,7 +221,7 @@ export default function BillBanaoFinal() {
               <div className="grid grid-cols-3 gap-3 mt-5"><div className="border rounded-[12px] p-3 text-center"><div className="font-black text-[18px]">10k</div><div className="text-[10px] text-zinc-500">GOAL</div></div><div className="border rounded-[12px] p-3 text-center"><div className="font-black text-[14px]">Gulberg III</div><div className="text-[10px] text-zinc-500">LAHORE BASE</div></div><div className="border rounded-[12px] p-3 text-center"><div className="font-black text-[18px]">5</div><div className="text-[10px] text-zinc-500">NEXT PRODUCTS</div></div></div>
               <div className="flex gap-3 mt-5"><a href="https://wa.me/92371021332" target="_blank" className="flex-1 h-11 rounded-full bg-[#22C55E] text-white font-bold flex items-center justify-center text-[13px]">WhatsApp Me</a><a href="mailto:ubaidmushtaq434@gmail.com" className="flex-1 h-11 rounded-full bg-black text-white font-bold flex items-center justify-center text-[13px]">Email Me</a></div>
               <div className="mt-4 grid grid-cols-2 gap-2"><a href="https://instagram.com/ch_ubaid_17" target="_blank" className="h-10 rounded-full border flex items-center justify-center gap-2 text-[12px] font-semibold"><span className="w-5 h-5 rounded-full bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 flex items-center justify-center text-white text-[10px]">IG</span> @ch_ubaid_17</a><a href="https://facebook.com/Ubaid1M" target="_blank" className="h-10 rounded-full border flex items-center justify-center gap-2 text-[12px] font-semibold"><span className="w-5 h-5 rounded-full bg-[#1877F2] flex items-center justify-center text-white text-[10px]">f</span> Ubaid1M</a></div>
-              <div className="mt-6 flex flex-col gap-2 border-t pt-4"><div className="flex justify-between items-center"><button onClick={()=>setShowAbout(false)} className="h-9 px-5 rounded-full bg-zinc-100 text-[13px]">Close</button><div className="text-[11px] text-zinc-500">Official email: {business.email} <span className="ml-2 px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold">Coming Soon</span></div></div><div className="text-[10px] text-zinc-400 text-center">✨ Premium clean profile • Built with care in Lahore</div></div>
+              <div className="mt-6 flex flex-col gap-2 border-t pt-4"><div className="flex justify-between items-center"><button onClick={()=>setShowAbout(false)} className="h-9 px-5 rounded-full bg-zinc-100 text-[13px]">Close</button><div className="text-[11px] text-zinc-500">Official email: <span className="font-semibold text-black">hello@mushtaqandsons.dev</span></div></div><div className="text-[10px] text-zinc-400 text-center">✨ Premium clean profile • Built with care in Lahore</div></div>
             </div>
           </div>
         </div>
